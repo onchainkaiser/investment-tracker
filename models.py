@@ -24,8 +24,8 @@ class Investment(Base):
 
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     asset_name = Column(String, nullable=False)
-    amount_invested = Column(Float, nullable=False)   # 👈 use Float not float
-    current_value = Column(Float, nullable=False)     # 👈 same here
+    amount_invested = Column(Float, nullable=False)   
+    current_value = Column(Float, nullable=False)     
     chain_name = Column(String, nullable=False)
     currency = Column(String, nullable=False)
     date_invested = Column(DateTime(timezone=True), server_default=func.now())
