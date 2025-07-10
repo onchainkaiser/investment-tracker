@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class CreateInvestment(BaseModel):
@@ -14,3 +14,11 @@ class UpdateInvestment(BaseModel):
     chain_name : Optional[str] = None
     currency : Optional[str] = None
     
+class Usercreate(BaseModel):
+    username:str
+    email: EmailStr
+    password:str
+
+class Userlogin(BaseModel):
+    email: EmailStr
+    password: str

@@ -29,3 +29,12 @@ class Investment(Base):
     chain_name = Column(String, nullable=False)
     currency = Column(String, nullable=False)
     date_invested = Column(DateTime(timezone=True), server_default=func.now())
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key= True, index= True, default=lambda: str(uuid.uuid4()))
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+

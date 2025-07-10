@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import engine, SessionLocal
-from models import Investment, Base
-from schemas import CreateInvestment, UpdateInvestment
+from models import Investment, Base, User
+from schemas import CreateInvestment, UpdateInvestment, Usercreate, Userlogin
+from auth import hash_password, verify_password, create_access_token
 
 app = FastAPI(title="Investment Tracker API")
 
@@ -88,3 +89,32 @@ def calculate_roi(investment_id: str, db: Session = Depends(get_db)):
         "current_value": investment.current_value,
         "roi_percentage": round(roi, 2)
     }
+
+@app.post("/register")
+def register_user(user: Usercreate, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="email already registered")
+    
+    hashed_pwd = hash_password(user.password)
+    new_user = User(
+        username= user.username,  
+        email= user.email,        
+        hashed_password=hashed_pwd
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "user registered successfully", "id": new_user.id}  
+
+@app.post("/login")
+def login_user(user: Userlogin, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user or not verify_password(user.password, db_user.hashed_password):  # Fixed: hashed password -> hashed_password
+        raise HTTPException(status_code=401, detail="invalid email or password")
+    
+    access_token = create_access_token({"user_id": db_user.id})  # Fixed indentation
+    return {"access_token": access_token, "token_type": "bearer"}  # Added space after comma
+
